@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>People</title>
+</head>
+<body>
+    <div id="top">
+        <h1>CONNEXIO</h1>
+    </div>
+    
+    <div id="middle">
+        <div class="menu-Location">
+            <form action="/index" method="POST">
+                <label for="location">Choose a Location:</label>
+                <select name="location" id="location">
+                    <option value="">-- Select a location --</option>
+                    {% for location in locations %}
+                        <option value="{{ location[0] }}" {% if selected_location == location[0] %}selected{% endif %}>{{ location[1] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Filter</button>
+            </form>
+        </div>
+
+        <div class="people-around">
+            <p>People in Selected Location:</p>
+            {% for person in people_in_location %}
+                <div id="person">
+                    <div><h3>{{ person[1] }}</h3></div>
+                    <form action="/smile" method="POST">
+                        <input type="hidden" name="receiver_id" value="{{ person[0] }}">
+                        <button type="submit">Give a smile  <i class="fa fa-smile"></i></button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="people-smiled">
+            <p>People Who Smiled at You in Selected Location:</p>
+            {% for person in people_who_smiled %}
+                <div id="person">
+                    <div><h3>{{ person[1] }}</h3></div>
+                    <h3><a href="chat.html">CHAT</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,265 @@
+/* General */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Encabezado */
+#top {
+    width: 100%;
+    background-color: #1f1f1f;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#top h1 {
+    margin: 0;
+    font-size: 3em;
+    color: #69e91e;
+}
+
+/* Contenedor principal */
+#middle {
+    display: flex;
+    width: 100%;
+}
+
+/* Mapa */
+#map {
+    width: 80%;
+    margin: 20px 0;
+    margin-left: 10%;
+    border: 5px solid #69e91e;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#map iframe {
+    width: 100%;
+    height: 300px;
+    border: 0;
+}
+
+/* Menú desplegable */
+.menu-Location {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 80%;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.menu-Location > li {
+    position: relative;
+}
+
+.menu-Location > li > h2 {
+    margin: 0;
+    padding: 10px;
+    background-color: #69e91e;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+
+.menu-Location > li > h2 > a {
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #3e3e3e;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    border-radius: 5px;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #575757;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Contenedor de personas */
+.people-around,
+.people-smiled {
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    width: 40%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.people-around p,
+.people-smiled p {
+    font-size: 1.5em;
+    margin: 0 0 10px 0;
+    color: #69e91e;
+    text-align: center;
+}
+
+.people-around h3,
+.people-smiled h3 {
+    margin: 10px 0;
+}
+
+button {
+    background-color: #69e91e;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: #ebe407;
+    transform: scale(1.05);
+}
+
+#interests ol {
+    list-style: none;
+    padding: 0;
+}
+
+#interests ol li {
+    background-color: #69e91e;
+    color: white;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+/* Enlaces interactivos */
+a {
+    color: #69e91e;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Disposición de contenedores */
+#middle {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#middle > .people-around,
+#middle > .people-smiled {
+    display: inline-block;
+    width: 40%;
+    vertical-align: top;
+    margin: 20px 10px;
+}
+
+#person {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 8%;
+}
+
+/* CHAT */
+
+/* Top header */
+#chat_top {
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /*position: fixed;*/
+    top: 0;
+    z-index: 1000;
+    padding-left: 1%;
+    text-align: center;
+}
+
+/* Main container */
+#left, #right {
+    padding-top: 80px; /* Space for fixed header */
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+#left {
+    width: 30%;
+    padding-top: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#right {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    padding-left: 3%;
+    padding-top: 5%;
+    border: 2px solid #69e91e;
+}
+
+/* Profile section */
+#profile {
+    display: flex;
+    text-align: center;
+    padding: 0px;
+    width: 100%;
+    justify-content: center;
+}
+
+.profile-image {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    margin-right: 23px;
+}
+
+#profile h3 {
+    margin: 30px 10;
+}
+
+#profile p
+
+.profile-image {
+    width: 10%;
+    border-radius: 60%;
+}
+
+#contacts {
+    display: flex;
+    flex-direction: column;
+}
