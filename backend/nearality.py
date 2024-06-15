@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from db import *
 
-app = Flask(__name__)
+app = Flask(name)
 
 # Sample data
 locations = [
@@ -21,11 +21,35 @@ chat_id_counter = 1
 # List of Locations
 @app.route('/locations', methods=['GET'])
 def get_locations():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM locations")
+
+        rows = cursor.fetchall()  # Fetch all rows from the result set
+
+        listOfLocs = ""
+        for row in rows:
+            listOfLocs += f"{row}\n"
+        print(f"List of locations:{listOfLocs}")
+
+        print("[info] Data added")
     return jsonify(locations)
 
 # List of People in Location
 @app.route('/locations/<int:location_id>/people', methods=['GET'])
 def get_people_in_location(location_id):
+    ###not done et todo: 1 must be replesed with users' chose 
+    with connection.cursor() as cursor:
+        cursor.execute("""SELECT * FROM user_info WHERE id_location = 1#<<—-
+                           """)
+
+        rows = cursor.fetchall()  # Fetch all rows from the result set
+
+        listOfPeople = ""
+        for row in rows:
+            listOfPeople += f"{row}\n"
+        print(f"List of locations:{listOfLocs}")
+
+        print("[info] Data added")
     location_people = [person for person in people if person['location_id'] == location_id]
     return jsonify(location_people)
 
@@ -61,5 +85,5 @@ def get_chat_info(chat_id):
     else:
         return jsonify({'error': 'Chat not found'}), 404
 
-if __name__ == '__main__':
+if name == 'main':
     app.run(port=8000)

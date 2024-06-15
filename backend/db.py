@@ -22,23 +22,33 @@ try:
         )
 
         print (f"Serever version:{cursor.fetchone()}")
-
+#todo: replace 1 with users chose 
     with connection.cursor() as cursor:
-        cursor.execute(
-            """ CREATE TABLE tester(
-                    id_tester serial primary key,
-                    name varchar(20) not null,
-                    pp int not null
-                )"""
-        )
-
+        cursor.execute("""SELECT * FROM user_info WHERE id_location = 1
+                       """)
+        
+        rows = cursor.fetchall()  # Fetch all rows from the result set
+        
+        listOfPeople = ""
+        for row in rows:
+            listOfPeople +=f"{row}\n"
+        print(f"List of locations:{listOfLocs}")
+        
+        print("[info] Data added")
+#showing all locations
     with connection.cursor() as cursor:
-        cursor.execute(
-            """INSERT into  tester (name,pp) values ('testor','123')"""
-        )
-
-        print("[info] data addaed")
-
+        cursor.execute("SELECT * FROM locations")
+        
+        rows = cursor.fetchall()  # Fetch all rows from the result set
+        
+        
+        listOfLocs = ""
+        for row in rows:
+            listOfLocs +=f"{row}\n"
+        print(f"List of locations:{listOfLocs}")
+        
+        print("[info] Data added")
+  
 except Exception as _ex:
     print("[info] error while working with procedure", _ex)
     
