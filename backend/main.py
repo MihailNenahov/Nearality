@@ -23,6 +23,22 @@ try:
 
         print (f"Serever version:{cursor.fetchone()}")
 
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """ CREATE TABLE tester(
+                    id_tester serial primary key,
+                    name varchar(20) not null,
+                    pp int not null
+                )"""
+        )
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """INSERT into  tester (name,pp) values ('testor','123')"""
+        )
+
+        print("[info] data addaed")
+
 except Exception as _ex:
     print("[info] error while working with procedure", _ex)
     
