@@ -1,37 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_socketio import SocketIO, emit
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from config import host, user, password, db_name
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+socketio = SocketIO(app)
 
 # Database connection function
 def get_db_connection():
-    conn = psycopg2.connect(
-        dbname='your_dbname',
-        user='your_user',
-        password='your_password',
-        host='your_host',
-        port='your_port'
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=db_name
     )
-    return conn
+    connection.autocommit = True
+    return connection
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        name = request.form['name']
         password = request.form['password']
-
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM user_info WHERE name = %s AND password = %s", (username, password))
+        
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute("SELECT id_user_info, name FROM user_info WHERE name = %s AND password = %s", (name, password))
         user = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
+        
         if user:
-            session['user_id'] = user['id_user_info']
-            session['user_name'] = user['name']
+            session['user_id'] = user[0]
+            session['user_name'] = user[1]  # Store the user's name in the session
             return redirect(url_for('index'))
         else:
             return "Invalid credentials. Please try again."
@@ -44,7 +45,7 @@ def index():
         return redirect(url_for('login'))
     
     connection = get_db_connection()
-    cursor = connection.cursor(cursor_factory=RealDictCursor)
+    cursor = connection.cursor()
     
     # Get all locations
     cursor.execute("SELECT * FROM locations")
@@ -77,14 +78,14 @@ def index():
     
     # Get people who the logged-in user smiled at
     cursor.execute("SELECT id_received FROM smilies WHERE id_sender = %s", (user_id,))
-    smiled_people_ids = [row['id_received'] for row in cursor.fetchall()]
+    smiled_people_ids = [row[0] for row in cursor.fetchall()]
     
-    # Get all users in the selected location who have not been smiled at by the logged-in user and are not the logged-in user
+    # Get all users in the selected location who have not been smiled at by the logged-in user
     if selected_location:
         cursor.execute("""
             SELECT * FROM user_info 
-            WHERE id_location = %s AND id_user_info NOT IN %s AND id_user_info != %s
-        """, (selected_location, tuple(smiled_people_ids) or (None,), user_id))
+            WHERE id_location = %s AND id_user_info NOT IN %s
+        """, (selected_location, tuple(smiled_people_ids) or (None,)))
         people_in_location = cursor.fetchall()
     else:
         people_in_location = []
@@ -95,21 +96,21 @@ def index():
 def give_smile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
-    sender_id = session['user_id']
-    receiver_id = request.form['receiver_id']
 
-    if sender_id == int(receiver_id):
-        return redirect(url_for('index'))  # Prevent smiling at oneself
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    receiver_id = request.form['receiver_id']
+    sender_id = session['user_id']
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
     cursor.execute("INSERT INTO smilies (id_sender, id_received) VALUES (%s, %s)", (sender_id, receiver_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
+
     return redirect(url_for('index'))
 
+@socketio.on('chat message')
+def handle_chat_message(msg):
+    emit('chat message', msg, broadcast=True)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+
