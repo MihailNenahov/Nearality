@@ -89,7 +89,6 @@
     const form = event.target;
     const formData = new FormData(form);
     const receiver_id = new URLSearchParams(formData).toString().substring(12);
-    console.log(receiver_id);
     
 
     fetch(`/give_smile/${receiver_id}`, {
@@ -116,7 +115,7 @@
         // Check if response is HTML (error page, login page, etc.)
         if (response.headers.get('content-type').includes('text/html')) {
             console.log('Response is HTML:', response);
-            // Handle HTML response (possibly redirect or show error message)
+            // Handle HTML respose (possibly redirect or show error message)
         } else {
             // Handle other types of errors
             console.error('Unexpected response:', response);

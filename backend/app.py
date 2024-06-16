@@ -7,7 +7,7 @@ import logging
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 socketio = SocketIO(app)
-loger = logging.getLogger(__name__);
+logger = logging.getLogger(__name__)
 
 # Database connection function
 def get_db_connection():
@@ -52,42 +52,38 @@ def index():
     # Get all locations
     cursor.execute("SELECT * FROM locations")
     locations = cursor.fetchall()
-    
-    selected_location = None
-    if request.method == 'POST' and 'location' in request.form:
-        selected_location = request.form['location']
-    
+
     # Get people who smiled at the logged-in user
     user_id = session['user_id']
     user_name = session['user_name']  # Retrieve the user's name from the session
     
-    if selected_location:
-        cursor.execute("""
-            SELECT u.id_user_info, u.name 
-            FROM user_info u
-            JOIN smilies s ON u.id_user_info = s.id_sender
-            WHERE s.id_received = %s AND u.id_location = %s
-        """, (user_id, selected_location))
+    selected_location = None
+    if request.method == 'POST' and 'location' in request.form:
+        selected_location = request.form['location']
     else:
+        selected_location = locations[0]
         cursor.execute("""
-            SELECT u.id_user_info, u.name 
-            FROM user_info u
-            JOIN smilies s ON u.id_user_info = s.id_sender
-            WHERE s.id_received = %s
-        """, (user_id,))
+            update user_info set id_location = %s where id_user_info = %s
+        """, (selected_location[0], user_id))
+    
+    
+    cursor.execute("""
+        SELECT u.id_user_info, u.name 
+        FROM user_info u
+        JOIN smilies s ON u.id_user_info = s.id_sender
+        WHERE s.id_received = %s AND u.id_location = %s and u.id_user_info <> %s
+    """, (user_id, selected_location[0], user_id))
+    
     
     people_who_smiled = cursor.fetchall()
-    
-    # Get people who the logged-in user smiled at
-    cursor.execute("SELECT id_received FROM smilies WHERE id_sender = %s", (user_id,))
-    smiled_people_ids = [row[0] for row in cursor.fetchall()]
-    
+
     # Get all users in the selected location who have not been smiled at by the logged-in user
+    people_in_location = None
     if selected_location:
         cursor.execute("""
             SELECT * FROM user_info 
-            WHERE id_location = %s AND id_user_info NOT IN %s
-        """, (selected_location, tuple(smiled_people_ids) or (None,)))
+            WHERE id_location = %s  and id_user_info <> %s
+        """, (selected_location[0], user_id))
         people_in_location = cursor.fetchall()
     else:
         people_in_location = []
