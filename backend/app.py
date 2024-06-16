@@ -100,8 +100,10 @@ def give_smile(receiver_id):
     connection = get_db_connection()
     cursor = connection.cursor()
 
+    # Вставляем запись в таблицу smilies
     cursor.execute("INSERT INTO smilies (id_sender, id_received) VALUES (%s, %s)", (sender_id, receiver_id))
 
+    # Возвращаем JSON-ответ
     return jsonify({'message': 'Smile given successfully', 'receiver_id': receiver_id}), 200
 
 

@@ -12,7 +12,7 @@
 <body>
 
     <div id="top">
-        <h1>CONNEXIO</h1>
+        <h1>WAVE ME</h1>
     </div>
 
     <div id="middle">
@@ -32,15 +32,14 @@
             <p>People around you: {{ people_in_location|length }}</p>
 
             {% for person in people_in_location %}
-            <div id="person">
+            <div class="person" id="person-{{ person[0] }}">
                 <div>
                     <h3>{{ person[1] }}</h3>
                 </div>
-                    <form id="smileForm">
-                        <input type="hidden" name="receiver_id" value="{{ person[0] }}">
-                        <button type="submit">Give a smile  <i class="fa fa-smile"></i></button>
-                    </form>
-
+                <form class="smileForm">
+                    <input type="hidden" name="receiver_id" value="{{ person[0] }}">
+                    <button type="submit">Give a smile  <i class="fa fa-smile"></i></button>
+                </form>
             </div>
             {% endfor %}
         </div>
@@ -113,77 +112,87 @@
             document.getElementById('messages').appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
-    </script>
 
-    const form = event.target;
-    const formData = new FormData(form);
-    const receiver_id = new URLSearchParams(formData).toString().substring(12);
-    
+        document.querySelectorAll('.chat-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const personId = button.dataset.personId;
+        const personName = button.closest('.person').querySelector('h3').innerText;
+        
+        // Set up the chat modal to open and interact with this person
+        modal.style.display = "block"; // Assuming `modal` is already defined in your script
+        
+        // Customize modal content or behavior as needed
+        // Example: Update modal header to show the person's name
+        document.querySelector('.modal-content h2').textContent = `Chat with ${personName}`;
+        
+        // Example: Add functionality to send messages to this person
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', { to: personId, message: input.value });
+                input.value = '';
+            }
+        });
+    });
+});
 
-    fetch(`/give_smile/${receiver_id}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type' : 'application/json'
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json(); // Try to parse response as JSON
-    })
-    .then(data => {
-        // Handle successful JSON response
-        console.log('Success:', data);
-        // You can update the UI or show a success message here
-    })
-    .catch(error => {
-        // Handle errors or non-JSON responses
-        console.error('Error:', error);
-        // Check if response is HTML (error page, login page, etc.)
-        if (response.headers.get('content-type').includes('text/html')) {
-            console.log('Response is HTML:', response);
-            // Handle HTML respose (possibly redirect or show error message)
-        } else {
-            // Handle other types of errors
-            console.error('Unexpected response:', response);
-        }
+document.querySelectorAll('.smileForm').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(form);
+        const receiver_id = formData.get('receiver_id');
+        const parentDiv = form.closest('.person');
+        const personName = parentDiv.querySelector('h3').innerText;
+
+        fetch(`/give_smile/${receiver_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            // Move the person div to the people-smiled section
+            const peopleSmiledDiv = document.querySelector('.people-smiled');
+            parentDiv.querySelector('form').remove(); // Remove the smileForm from original div
+            peopleSmiledDiv.appendChild(parentDiv);
+            
+            // Create and append the new "Chat" button
+            const chatButton = document.createElement('button');
+            chatButton.classList.add('chat-button');
+            chatButton.dataset.personId = receiver_id; // Set data-person-id attribute
+            chatButton.textContent = 'Chat';
+            parentDiv.appendChild(chatButton); // Append chat button next to person's name
+            
+            // Add event listener to the newly added "Chat" button
+            chatButton.addEventListener('click', function() {
+                modal.style.display = "block"; // Open the chat modal
+                document.querySelector('.modal-content h2').textContent = `Chat with ${personName}`;
+                
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (input.value) {
+                        socket.emit('chat message', { to: receiver_id, message: input.value });
+                        input.value = '';
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
 });
 
 
-
-        chatButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                modal.style.display = "block";
-            });
-        });
-
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (input.value) {
-                socket.emit('chat message', input.value);
-                input.value = '';
-            }
-        });
-
-        socket.on('chat message', function(msg) {
-            var item = document.createElement('div');
-            item.textContent = msg;
-            document.getElementById('messages').appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        });
     </script>
 
 </body>
