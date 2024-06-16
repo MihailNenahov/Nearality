@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit
 import psycopg2
 from config import host, user, password, db_name
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 socketio = SocketIO(app)
+loger = logging.getLogger(__name__);
 
 # Database connection function
 def get_db_connection():
@@ -90,25 +92,13 @@ def index():
     else:
         people_in_location = []
     
-    # Fetch chat history
-    cursor.execute("""
-        SELECT c.message, u.name
-        FROM chat c
-        JOIN user_info u ON c.id_user_info = u.id_user_info
-        LIMIT 50  -- Adjust as needed
-    """)
-    chat_history = cursor.fetchall()
-    
-    return render_template('index.html', locations=locations, people_who_smiled=people_who_smiled, 
-                           people_in_location=people_in_location, selected_location=selected_location, 
-                           user_name=user_name, chat_history=chat_history)
+    return render_template('index.html', locations=locations, people_who_smiled=people_who_smiled, people_in_location=people_in_location, selected_location=selected_location, user_name=user_name)
 
-@app.route('/give_smile', methods=['POST'])
-def give_smile():
+@app.route('/give_smile/<int:receiver_id>', methods=['POST'])
+def give_smile(receiver_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-
-    receiver_id = request.form['receiver_id']
+    
     sender_id = session['user_id']
 
     connection = get_db_connection()
@@ -116,17 +106,12 @@ def give_smile():
 
     cursor.execute("INSERT INTO smilies (id_sender, id_received) VALUES (%s, %s)", (sender_id, receiver_id))
 
-    return redirect(url_for('index'))
+    return jsonify({'message': 'Smile given successfully', 'receiver_id': receiver_id}), 200
 
 @socketio.on('chat message')
 def handle_chat_message(msg):
-    user_id = session.get('user_id')
-    if user_id:
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO chat (id_user_info, message) VALUES (%s, %s)", (user_id, msg))
-        connection.commit()  # Commit the transaction
-        emit('chat message', (msg, session['user_name']), broadcast=True)
+    emit('chat message', msg, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
+
