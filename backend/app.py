@@ -104,9 +104,17 @@ def give_smile(receiver_id):
 
     return jsonify({'message': 'Smile given successfully', 'receiver_id': receiver_id}), 200
 
+
 @socketio.on('chat message')
 def handle_chat_message(msg):
-    emit('chat message', msg, broadcast=True)
+    user_name = session.get('user_name', 'Anonymous')
+    message = f"{user_name}: {msg}"
+    store_message(message)
+    emit('chat message', message, broadcast=True)
+
+def store_message(message, filename='chat_log.txt'):
+    with open(filename, 'a') as file:
+        file.write(f"{message}\n")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

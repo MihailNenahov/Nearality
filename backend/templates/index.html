@@ -83,8 +83,37 @@
         var modal = document.getElementById("chat-modal");
         var span = document.getElementsByClassName("close")[0];
 
-        document.getElementById('smileForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the default form submission
+        chatButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                modal.style.display = "block";
+            });
+        });
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('div');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
 
     const form = event.target;
     const formData = new FormData(form);
