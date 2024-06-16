@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
     <title>People</title>
+    <style>
+        /* Style for the chat window */
+        #chatPopup {
+            position: fixed;
+            bottom: 0;
+            right: 15px;
+            width: 400px;
+            height: 400px;
+            background-color: #2c2c2c;
+            box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        #chatHeader {
+            padding: 10px;
+            background-color: #69e91e;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 10px;
+        }
+        
+        #chatBody {
+            padding: 10px;
+        }
+
+        #closeBtn {
+            color: white;
+            float: right;
+            font-size: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div id="top">
@@ -47,6 +81,35 @@
                 </div>
             {% endfor %}
         </div>
+
+        <div id="messages" class="chat-messages">
+        </div>
+        <form id="form" class="chat-form" action="">
+            <input id="input" class="chat-input" autocomplete="off" placeholder="Type a message..." />
+            <button class="chat-button">Send</button>
+        </form>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            var form = document.getElementById('form');
+            var input = document.getElementById('input');
+    
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (input.value) {
+                    socket.emit('chat message', input.value);
+                    input.value = '';
+                }
+            });
+    
+            socket.on('chat message', function(msg) {
+                var item = document.createElement('div');
+                item.textContent = msg;
+                document.getElementById('messages').appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        </script>
     </div>
 </body>
 </html>

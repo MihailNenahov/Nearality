@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Project</title>
+</head>
+<body>
+
+    <div id="top">
+        <h1>CONNEXIO</h1>    
+    </div>
+    
+    <div id="middle">
+
+        <ul class="menu-Location">
+            <li class="dropdown">
+                <h2><a href="#" class="dropbtn">Your location</a></h2>
+                <div id="map">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d156388.9822820606!2d20.896613564660935!3d52.232887094537915!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471ecc669a869f01%3A0x72f0be2a88ead3fc!2sVarsovia!5e0!3m2!1ses!2spl!4v1718462958259!5m2!1ses!2spl" width="500" height="350" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="dropdown-content">
+                    <form method="POST" action="/index">
+                        <select name="location" onchange="this.form.submit()">
+                            {% for location in locations %}
+                                <option value="{{ location[0] }}" {% if location[0] == selected_location %}selected{% endif %}>{{ location[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </li>
+        </ul>
+
+        <div class="people-around">
+            <p>People around you: {{ people_in_location | length }}</p>
+            {% for person in people_in_location %}
+                <div id="person">
+                    <div><h3>{{ person[1] }}</h3></div>
+                    <button type="button" class="chat-link" data-person-id="{{ person[0] }}">CHAT <i class="fa fa-smile"></i></button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="people-smiled">
+            <p>People who smiled back: {{ people_who_smiled | length }}</p>
+            {% for person in people_who_smiled %}
+                <div id="person">
+                    <div><h3>{{ person[1] }}</h3></div>
+                    <button type="button" class="chat-link" data-person-id="{{ person[0] }}">CHAT <i class="fa fa-smile"></i></button>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="messages" class="chat-messages">
+                <!-- Messages will be appended here -->
+            </div>
+            <form id="form" class="chat-form" action="">
+                <input id="input" class="chat-input" autocomplete="off" placeholder="Type a message..." />
+                <button class="chat-button">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        // Open chat popup when clicking on CHAT button
+        document.querySelectorAll('.chat-link').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('myModal').style.display = "block";
+            });
+        });
+
+        // Close the chat popup when clicking the close button
+        var closeBtn = document.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.onclick = function() {
+                document.getElementById('myModal').style.display = "none";
+            }
+        }
+
+        // Send chat message
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value.trim()) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        // Receive and display chat messages
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('div');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+
+</body>
+</html>
