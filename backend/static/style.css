@@ -90,6 +90,7 @@ body {
 
 #person h3 {
     margin: 0;
+    color: white;
 }
 
 .chat-link {
@@ -125,7 +126,7 @@ body {
     border: 1px solid #888;
     width: 80%;
     border-radius: 10px;
-    color: #222222;
+    color: #ffffff;
     max-width: 600px;
 }
 
