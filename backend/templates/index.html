@@ -4,8 +4,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Embedded CSS -->
+    <style>
+        /* Reset some default browser styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Top section styling */
+        #top {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        #top h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        /* Middle section styling */
+        #middle {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Styling for Choose a Location section */
+        .menu-Location {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            width: 30%;
+        }
+
+        .menu-Location h2 {
+            margin-bottom: 10px;
+        }
+
+        .menu-Location select,
+        .menu-Location button {
+            margin-top: 5px;
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 100%;
+        }
+
+        .menu-Location button {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .menu-Location select:focus,
+        .menu-Location button:focus {
+            outline: none;
+        }
+
+        /* Styling for People around you section */
+        .people-around {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            width: 30%;
+        }
+
+        .people-around p {
+            margin-bottom: 10px;
+        }
+
+        .person {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .person h3 {
+            margin-bottom: 5px;
+        }
+
+        .smileForm button {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .smileForm button i {
+            margin-left: 5px;
+        }
+
+        /* Styling for People who smiled at you section */
+        .people-smiled {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            width: 30%;
+        }
+
+        .people-smiled p {
+            margin-bottom: 10px;
+        }
+
+        .people-smiled #person {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .people-smiled #person h3 {
+            margin-bottom: 5px;
+        }
+
+        .people-smiled .chat-button {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Styling for User info section */
+        .user-info {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            width: 30%;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        /* Styling for Chat modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Chat messages styling */
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .chat-messages div {
+            margin-bottom: 5px;
+        }
+
+        /* Chat input and button styling */
+        .chat-form {
+            display: flex;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        .chat-button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .chat-button:hover {
+            background-color: #555;
+        }
+
+        .chat-button:focus {
+            outline: none;
+        }
+    </style>
+    
+    <!-- External Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <title>Project</title>
 </head>
 
