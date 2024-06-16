@@ -1,0 +1,9 @@
+This is dating web application:
+-For frontend it has been used HTML, CSS and Java Script.
+-For Backend it has been used Python (libraries flask, flask_socketio) for database is on PostgreSQL
+
+1) to run the project you must run the app.py
+
+Our app give you ability to find couple in public environment without risks and in most effective way possible.
+To use app you need to use web app. Here you can share your location, check list of other app users around and 
+find couple by waving to them through app and enjoy experience.
