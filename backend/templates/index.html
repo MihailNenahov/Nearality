@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Project</title>
 </head>
+
 <body>
 
     <div id="top">
-        <h1>CONNEXIO</h1>    
+        <h1>CONNEXIO</h1>
     </div>
-    
+
     <div id="middle">
         <div class="menu-Location">
             <h2>Choose a Location</h2>
@@ -31,11 +33,14 @@
 
             {% for person in people_in_location %}
             <div id="person">
-                <div><h3>{{ person[1] }}</h3></div>
-                <form method="post" action="{{ url_for('give_smile') }}">
+                <div>
+                    <h3>{{ person[1] }}</h3>
+                </div>
+                <form id="smileForm">
                     <input type="hidden" name="receiver_id" value="{{ person[0] }}">
                     <button type="submit">Give a smile  <i class="fa fa-smile"></i></button>
                 </form>
+
             </div>
             {% endfor %}
         </div>
@@ -45,7 +50,9 @@
 
             {% for person in people_who_smiled %}
             <div id="person">
-                <div><h3>{{ person[1] }}</h3></div>
+                <div>
+                    <h3>{{ person[1] }}</h3>
+                </div>
                 <button class="chat-button" data-person-id="{{ person[0] }}">Chat</button>
             </div>
             {% endfor %}
@@ -75,6 +82,42 @@
         var chatButtons = document.querySelectorAll('.chat-button');
         var modal = document.getElementById("chat-modal");
         var span = document.getElementsByClassName("close")[0];
+
+        document.getElementById('smileForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                // Get the form element
+                const form = event.target;
+
+                // Create a FormData object from the form element
+                const formData = new FormData(form);
+
+                // Convert the FormData object to a URL-encoded string
+                const formParams = new URLSearchParams(formData).toString();
+
+                // Send the POST request using Fetch API
+                fetch('{{ url_for(give_smile ')
+            }
+        }
+        ', {
+        method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formParams
+        })
+        .then(response => response.json())
+            .then(data => {
+                // Handle the response data
+                console.log('Success:', data);
+                // You can update the UI or show a message here
+            })
+            .catch(error => {
+                // Handle any errors that occurred during the fetch
+                console.error('Error:', error);
+            });
+        });
+
 
         chatButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -109,4 +152,5 @@
     </script>
 
 </body>
+
 </html>
