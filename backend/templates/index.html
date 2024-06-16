@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Project</title>
+</head>
+
+<body>
+
+    <div id="top">
+        <h1>CONNEXIO</h1>
+    </div>
+
+    <div id="middle">
+        <div class="menu-Location">
+            <h2>Choose a Location</h2>
+            <form method="post" action="{{ url_for('index') }}">
+                <select name="location">
+                    {% for location in locations %}
+                        <option value="{{ location[0] }}" {% if selected_location == location[0] %}selected{% endif %}>{{ location[1] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Select</button>
+            </form>
+        </div>
+
+        <div class="people-around">
+            <p>People around you: {{ people_in_location|length }}</p>
+
+            {% for person in people_in_location %}
+            <div id="person">
+                <div>
+                    <h3>{{ person[1] }}</h3>
+                </div>
+                    <form id="smileForm">
+                        <input type="hidden" name="receiver_id" value="{{ person[0] }}">
+                        <button type="submit">Give a smile  <i class="fa fa-smile"></i></button>
+                    </form>
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="people-smiled">
+            <p>People who smiled at you in this location: {{ people_who_smiled|length }}</p>
+
+            {% for person in people_who_smiled %}
+            <div id="person">
+                <div>
+                    <h3>{{ person[1] }}</h3>
+                </div>
+                <button class="chat-button" data-person-id="{{ person[0] }}">Chat</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="user-info">
+            <p>Logged in as: {{ user_name }}</p>
+        </div>
+    </div>
+
+    <div id="chat-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="messages" class="chat-messages"></div>
+            <form id="form" class="chat-form" action="">
+                <input id="input" class="chat-input" autocomplete="off" placeholder="Type a message..." />
+                <button class="chat-button">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        var socket = io();
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        var chatButtons = document.querySelectorAll('.chat-button');
+        var modal = document.getElementById("chat-modal");
+        var span = document.getElementsByClassName("close")[0];
+
+        chatButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                modal.style.display = "block";
+            });
+        });
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('div');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+
+    const form = event.target;
+    const formData = new FormData(form);
+    const receiver_id = new URLSearchParams(formData).toString().substring(12);
+    
+
+    fetch(`/give_smile/${receiver_id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Try to parse response as JSON
+    })
+    .then(data => {
+        // Handle successful JSON response
+        console.log('Success:', data);
+        // You can update the UI or show a success message here
+    })
+    .catch(error => {
+        // Handle errors or non-JSON responses
+        console.error('Error:', error);
+        // Check if response is HTML (error page, login page, etc.)
+        if (response.headers.get('content-type').includes('text/html')) {
+            console.log('Response is HTML:', response);
+            // Handle HTML respose (possibly redirect or show error message)
+        } else {
+            // Handle other types of errors
+            console.error('Unexpected response:', response);
+        }
+    });
+});
+
+
+
+        chatButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                modal.style.display = "block";
+            });
+        });
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('div');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+
+</body>
+
+</html>
