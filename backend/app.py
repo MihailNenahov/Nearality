@@ -90,7 +90,18 @@ def index():
     else:
         people_in_location = []
     
-    return render_template('index.html', locations=locations, people_who_smiled=people_who_smiled, people_in_location=people_in_location, selected_location=selected_location, user_name=user_name)
+    # Fetch chat history
+    cursor.execute("""
+        SELECT c.message, u.name
+        FROM chat c
+        JOIN user_info u ON c.id_user_info = u.id_user_info
+        LIMIT 50  -- Adjust as needed
+    """)
+    chat_history = cursor.fetchall()
+    
+    return render_template('index.html', locations=locations, people_who_smiled=people_who_smiled, 
+                           people_in_location=people_in_location, selected_location=selected_location, 
+                           user_name=user_name, chat_history=chat_history)
 
 @app.route('/give_smile', methods=['POST'])
 def give_smile():
@@ -109,8 +120,13 @@ def give_smile():
 
 @socketio.on('chat message')
 def handle_chat_message(msg):
-    emit('chat message', msg, broadcast=True)
+    user_id = session.get('user_id')
+    if user_id:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO chat (id_user_info, message) VALUES (%s, %s)", (user_id, msg))
+        connection.commit()  # Commit the transaction
+        emit('chat message', (msg, session['user_name']), broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
-
